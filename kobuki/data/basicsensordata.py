@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 def _bumper_flags(data):
     RIGHT = 0x01
     CENTRAL = 0x02
@@ -45,7 +44,6 @@ def _charger_flags(data):
     return ChargerState(data)
 
 
-
 # https://yujinrobot.github.io/kobuki/enAppendixKobukiParameters.html
 def encoder_to_metres(data):
     return data
@@ -81,3 +79,9 @@ class BasicSensorData:
         self.charger = _charger_flags(charger)
         self.battery = battery
         self.overcurrent = overcurrent
+
+    def __str__(self):
+        return str(self.timestamp) + ", " + \
+               str(self.bumper) + ", " + \
+               str(self.left_encoder) + ", " + \
+               str(self.right_encoder)
