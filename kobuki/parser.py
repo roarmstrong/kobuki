@@ -1,3 +1,5 @@
+# Provides parsing for data payloads from Kobuki firmware
+# probably not the most applicable implementation for resource constrained or real-time systems
 from struct import unpack_from, calcsize
 from parsy import generate, any_char, peek, string, seq, fail
 from functools import reduce
