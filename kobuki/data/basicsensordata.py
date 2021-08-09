@@ -48,9 +48,6 @@ def _charger_flags(data):
 def encoder_to_metres(data):
     return data
 
-def encoder_to_radians(data):
-    return data
-
 class BasicSensorData:
 
     def __init__(self,
