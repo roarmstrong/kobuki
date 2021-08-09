@@ -16,10 +16,11 @@ def main():
     with Serial("/dev/ttyUSB0", 115200) as port:
         kobuki = Kobuki(port)
         while True:
+            print(f"x: {kobuki.state.x:.10f}m y: {kobuki.state.y:.10f}m θ: {kobuki.state.theta:.10f}rad")
             if kobuki.state.bumper_activated:
                 kobuki.send_command(stop)
+                sleep(0.5)
             else:
-                print(f"x: {kobuki.state.x:.10f}m y: {kobuki.state.y:.10f}m θ: {kobuki.state.theta:.10f}rad")
                 sleep(0.5)
                 # do something else! e.g.
                 # kobuki.send_command(spin_ccw)
