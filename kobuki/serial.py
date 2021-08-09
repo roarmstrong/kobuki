@@ -11,7 +11,6 @@ class ReadReturn(Enum):
     PARSE_ERROR = 2
 
 def _get_packet(data):
-    print(data)
     try:
         if len(data) > 0:
             payloads, remaining = find_packet.parse_partial(data)

@@ -1,6 +1,8 @@
 from kobuki.data import BasicSensorData, DockingIr, Orientation
 import math
 from threading import Lock
+from numpy import uint16, int16
+import warnings
 
 # contains information about the current Kobuki state
 # for example, distance travelled, current angle, bumper activation
@@ -40,30 +42,26 @@ class KobukiState:
 
 
     def updateBasicSensorData(self, basic):
+        left = uint16(basic.left_encoder)
+        right = uint16(basic.right_encoder)
         # if 1st packet, set raw values
         if self._raw_left is None:
-            self._raw_left = basic.left_encoder
+            self._raw_left = left
         if self._raw_right is None:
-            self._raw_right = basic.right_encoder
+            self._raw_right = right
 
-        # check for rollover in encoder values
-        # to determine delta in left and right encoder values
-        if self._raw_left > 65500 and basic.left_encoder < 1000:
-            delta_l = (65535 - self._raw_left) + basic.left_encoder
-        elif self._raw_left < 1000 and basic.left_encoder > 65500:
-            delta_l = (65535 - basic.left_encoder) + self._raw_left
-        else:
-            delta_l = basic.left_encoder - self._raw_left
+        # this will account for rollover in the unsigned encoder values
+        # up to the range of int16. If the delta is beyond we will not be
+        # able to determine the correct delta
+        # numpy helpfully warns us about the under/overflow
+        # but it is intended, so suppress the warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            delta_l = int(int16(left - self._raw_left))
+            delta_r = int(int16(right - self._raw_right))
 
-        if self._raw_right > 65500 and basic.right_encoder < 1000:
-            delta_r = (65535 - self._raw_right) + basic.right_encoder
-        elif self._raw_right < 1000 and basic.right_encoder > 65500:
-            delta_r = (65535 - basic.right_encoder) + self._raw_right
-        else:
-            delta_r = basic.right_encoder - self._raw_right
-
-        self._raw_left = basic.left_encoder
-        self._raw_right = basic.right_encoder
+        self._raw_left = left
+        self._raw_right = right
 
         # calculate left and right wheel deltas in meters
         # values taken from https://yujinrobot.github.io/kobuki/enAppendixProtocolSpecification.html
@@ -78,6 +76,6 @@ class KobukiState:
 
         self.x = self.x + x
         self.y = self.y + y
-        self.theta = self.theta + phi
+        self.theta = (self.theta + phi) % (2 * math.pi)
 
         self.bumper_activated = basic.bumper['left'] or basic.bumper['right'] or basic.bumper['central']

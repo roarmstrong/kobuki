@@ -19,7 +19,7 @@ def main():
             if kobuki.state.bumper_activated:
                 kobuki.send_command(stop)
             else:
-                kobuki.send_command(spin_ccw)
+                print(f"x: {kobuki.state.x:.10f}m y: {kobuki.state.y:.10f}m θ: {kobuki.state.theta:.10f}°")
                 sleep(0.5)
                 # do something else!
                 # e.g. kobuki.send_command(spin_ccw)
