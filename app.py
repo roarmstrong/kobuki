@@ -1,9 +1,8 @@
-from kobuki.serial import KobukiSerial
+from kobuki.kobuki import Kobuki
 from serial import Serial
 from kobuki.commands import BaseControl
 from kobuki.data.basicsensordata import ChargerState
-from kobuki.state import KobukiState
-from time import monotonic
+from time import monotonic, sleep
 import math
 
 def main():
@@ -15,33 +14,13 @@ def main():
     spin_ccw = BaseControl(50, 1)
 
     with Serial("/dev/ttyUSB0", 115200) as port:
-        kobuki = KobukiSerial(port)
-        kobuki_state = KobukiState()
-        x = kobuki_state.x
-        y = kobuki_state.y
-        should_turn = False
+        kobuki = Kobuki(port)
         while True:
-            data = kobuki.get_packet()
-            ir = data['docking_ir']
-            basic = data['basic']
-            inertial = data['inertial']
-            kobuki_state.updateBasicSensorData(basic)
-            kobuki_state.updateOrientation(inertial)
-
-
-            if kobuki_state.bumper_activated:
+            if kobuki.state.bumper_activated:
                 kobuki.send_command(stop)
             else:
-                distance = math.sqrt(((x - kobuki_state.x) ** 2) + ((y - kobuki_state.y) ** 2))
-                kobuki.send_command(move_backward)
-                if distance > 0.1:
-                    print(distance)
-                    should_turn = True
-                if should_turn:
-                    kobuki.send_command(spin_ccw)
-                    should_turn = False
-                    x = kobuki_state.x
-                    y = kobuki_state.y
+                kobuki.send_command(spin_ccw)
+                sleep(0.5)
                 # do something else!
                 # e.g. kobuki.send_command(spin_ccw)
                 # kobuki.send_command(move_forward)
