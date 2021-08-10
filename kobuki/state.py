@@ -71,8 +71,8 @@ class KobukiState:
         delta_centre = (delta_l_metres + delta_r_metres) / 2
         phi = (delta_r_metres - delta_l_metres) / 0.23 # change in orientation measured by wheel encoders
 
-        x = delta_centre * math.cos(self.angle) # delta x in metres
-        y = delta_centre * math.sin(self.angle) # delta y in metres
+        x = delta_centre * math.cos(self.theta) # delta x in metres
+        y = delta_centre * math.sin(self.theta) # delta y in metres
 
         self.x = self.x + x
         self.y = self.y + y
